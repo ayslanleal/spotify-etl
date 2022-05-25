@@ -23,4 +23,4 @@ if __name__ == "__main__":
     yesterday_unix_timestamp = int(yesterday.timestamp()) * 1000
    
     r = requests.get("https://api.spotify.com/v1/me/player/recently-played?after={time}".format(time=yesterday_unix_timestamp), headers = headers)
-    print(r.text)
+    
