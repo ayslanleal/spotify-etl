@@ -1,5 +1,6 @@
 
 from wsgiref import headers
+from more_itertools import difference
 import pandas as pd
 import json
 import datetime
@@ -17,19 +18,25 @@ def consult_full_load(df,headers):
     playeds = []
     timestamps = []
     api_ref = []
-    if r == None:
-        return df
+
     for i in r.get('items'):
-        songs.append(i['track']['name'])
-        artists.append(i["track"]["album"]["artists"][0]["name"])
-        playeds.append(i["played_at"])
-        timestamps.append(i["played_at"][0:10])
-        api_ref.append(r.get('next')[-13:])
+        if i is None:
+            return df
+        else:
+            songs.append(i['track']['name'])
+            artists.append(i["track"]["album"]["artists"][0]["name"])
+            playeds.append(i["played_at"])
+            timestamps.append(i["played_at"][0:10])
+            api_ref.append(r.get('next')[-13:])
+
 
     only_df = pd.DataFrame(columns=['song_name', 'artist', 'player','date','api_ref'] ,data= zip(songs, artists, playeds, timestamps,api_ref))
-
-    df.append(only_df)    
-    return df
+    if only_df.empty:
+        return df
+    else:
+        var = pd.concat([df,only_df], ignore_index=True)
+        
+    return var 
 
 def extract_api_spotify(request):
     songs = []
@@ -44,7 +51,6 @@ def extract_api_spotify(request):
         timestamps.append(i["played_at"][0:10])
         api_ref.append(r.get('next')[-13:])    
 
-    
     df = pd.DataFrame(columns=['song_name', 'artist', 'player','date','api_ref'] ,data= zip(songs, artists, playeds, timestamps,api_ref))
 
     return df
@@ -58,15 +64,19 @@ if __name__ == "__main__":
     }
           
   
-    r = requests.get("https://api.spotify.com/v1/me/player/recently-played?before=1653348503117", headers = headers).json()
+    r = requests.get("https://api.spotify.com/v1/me/player/recently-played", headers = headers).json()
     #                  https://api.spotify.com/v1/me/player/recently-played?before=1651620847342
     #r = json.load(open("teste.json"))
-
+    
     df = extract_api_spotify(r)
     
     while r != None:
         df = consult_full_load(df,headers)
+        df.to_csv('archive.csv')
+        print("\n")
+        
+
+
     
-    df.to_csv("teste.csv")
-    
+
     
