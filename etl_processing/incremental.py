@@ -1,6 +1,4 @@
 
-from wsgiref import headers
-from more_itertools import difference
 import pandas as pd
 import json
 import datetime
@@ -32,7 +30,7 @@ def extract_api_spotify(request):
         api_ref.append(r.get('next')[-13:])    
 
     df = pd.DataFrame(columns=['song_name', 'artist', 'player','date','api_ref'] ,data= zip(songs, artists, playeds, timestamps,api_ref))
-    
+
     return df
 
 if __name__ == "__main__":
