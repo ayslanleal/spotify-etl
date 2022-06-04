@@ -41,9 +41,6 @@ if __name__ == "__main__":
         "Authorization" : "Bearer {token}".format(token=TOKEN)
     }
           
-  
-    
-    #df = extract_api_spotify(r)
 
     today = datetime.datetime.now()
     yesterday = today - datetime.timedelta(days=1)
@@ -52,9 +49,8 @@ if __name__ == "__main__":
 
     df = extract_api_spotify(r)
 
-    
     if df.empty:
-        pass
+        print("Empty")
     else:
         batch(df,s3_client)
 
